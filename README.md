@@ -45,6 +45,12 @@ Set a minimum score for automation:
 python -m oss_health_check . --fail-under 80
 ```
 
+Output JSON for scripts and automation:
+
+```powershell
+python -m oss_health_check . --json
+```
+
 ## Example Output
 
 ```text

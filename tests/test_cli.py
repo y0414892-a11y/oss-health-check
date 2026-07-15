@@ -1,5 +1,6 @@
 import contextlib
 import io
+import json
 import tempfile
 import unittest
 
@@ -28,6 +29,19 @@ class CliTests(unittest.TestCase):
                     main([tmp, "--fail-under", "101"])
 
         self.assertEqual(raised.exception.code, 2)
+
+    def test_json_outputs_machine_readable_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                exit_code = main([tmp, "--json"])
+
+        report = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["passed_count"], 0)
+        self.assertEqual(report["missing_count"], 9)
+        self.assertEqual(report["score_percent"], 0)
+        self.assertEqual(report["results"][0]["name"], "README")
 
 
 if __name__ == "__main__":
