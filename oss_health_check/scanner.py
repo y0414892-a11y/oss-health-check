@@ -35,6 +35,9 @@ def scan_project(root: Path) -> ScanReport:
     root = root.resolve()
     results = (
         _check_any_file(root, "README", ("README.md", "README.rst", "README.txt"), "Found a README file.", "Add a README with purpose, setup, and usage instructions."),
+        _check_readme_section(root, "README installation section", ("installation", "install", "setup"), "Found README installation instructions.", "Add an Installation or Setup section to the README."),
+        _check_readme_section(root, "README usage section", ("usage", "quick start", "getting started"), "Found README usage instructions.", "Add a Usage or Quick Start section to the README."),
+        _check_readme_section(root, "README example section", ("example", "examples", "example output"), "Found a README example section.", "Add an Example section to the README."),
         _check_any_file(root, "License", ("LICENSE", "LICENSE.md", "COPYING"), "Found a license file.", "Add a license so people know how they may use the project."),
         _check_any_file(root, "Contributing guide", ("CONTRIBUTING.md", ".github/CONTRIBUTING.md"), "Found a contributing guide.", "Add CONTRIBUTING.md with local setup and contribution workflow."),
         _check_tests(root),
@@ -73,6 +76,38 @@ def _check_any_file(
     return CheckResult(name=name, passed=passed, detail=found_detail if passed else missing_detail)
 
 
+def _check_readme_section(
+    root: Path,
+    name: str,
+    headings: tuple[str, ...],
+    found_detail: str,
+    missing_detail: str,
+) -> CheckResult:
+    readme = _find_readme(root)
+    if readme is None:
+        return CheckResult(name=name, passed=False, detail=missing_detail)
+
+    readme_headings = _read_markdown_headings(readme)
+    passed = any(heading in readme_headings for heading in headings)
+    return CheckResult(name=name, passed=passed, detail=found_detail if passed else missing_detail)
+
+
+def _find_readme(root: Path) -> Path | None:
+    for candidate in ("README.md", "README.rst", "README.txt"):
+        path = root / candidate
+        if path.is_file():
+            return path
+    return None
+
+
+def _read_markdown_headings(path: Path) -> set[str]:
+    headings = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("#"):
+            headings.add(line.lstrip("#").strip().lower())
+    return headings
+
+
 def _check_tests(root: Path) -> CheckResult:
     test_paths = (root / "tests", root / "test")
     has_test_dir = any(path.is_dir() and any(path.iterdir()) for path in test_paths)
@@ -94,4 +129,3 @@ def _check_issue_templates(root: Path) -> CheckResult:
     passed = template_dir.is_dir() and any(template_dir.iterdir())
     detail = "Found issue templates." if passed else "Add issue templates for bug reports and feature requests."
     return CheckResult(name="Issue templates", passed=passed, detail=detail)
-

@@ -5,6 +5,7 @@
 - Add `--fail-under` to fail when the score is below a chosen threshold.
 - Add `--json` for machine-readable reports.
 - Add GitHub Action metadata so the checker can run in other repositories.
+- Add README section checks for installation, usage, and examples.
 
 ## 0.1.0
 

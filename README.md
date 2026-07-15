@@ -10,6 +10,9 @@ small enough to understand, but practical enough to improve over time.
 ## What It Checks
 
 - README
+- README installation section
+- README usage section
+- README example section
 - License
 - Contributing guide
 - Tests
@@ -18,6 +21,18 @@ small enough to understand, but practical enough to improve over time.
 - Pull request template
 - Security policy
 - Changelog
+
+## Installation
+
+OSS Health Check requires Python 3.12 or newer. It has no third-party
+dependencies.
+
+Clone the repository:
+
+```powershell
+git clone https://github.com/y0414892-a11y/oss-health-check.git
+cd oss-health-check
+```
 
 ## Quick Start
 
@@ -69,7 +84,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: y0414892-a11y/oss-health-check@main
+      - uses: y0414892-a11y/oss-health-check@v0.1.0
         with:
           fail-under: "80"
 ```
@@ -78,10 +93,12 @@ jobs:
 
 ```text
 OSS Health Check: .
-Score: 7/9 (78%)
+Score: 10/12 (83%)
 
 [ok] README
      Found a README file.
+[missing] README installation section
+     Add an Installation or Setup section to the README.
 [missing] Security policy
      Add SECURITY.md with vulnerability reporting instructions.
 ```
