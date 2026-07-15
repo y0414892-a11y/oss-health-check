@@ -51,6 +51,29 @@ Output JSON for scripts and automation:
 python -m oss_health_check . --json
 ```
 
+## GitHub Action
+
+Use this repository as a GitHub Action in another project:
+
+```yaml
+name: OSS Health Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: y0414892-a11y/oss-health-check@main
+        with:
+          fail-under: "80"
+```
+
 ## Example Output
 
 ```text
@@ -72,7 +95,7 @@ repositories.
 
 ## Roadmap
 
-- Add JSON output for automation.
+- Add GitHub Action examples for common project types.
 - Add GitHub API checks for repository metadata.
 - Add language-specific checks for Python, JavaScript, and Rust projects.
 - Add scoring categories for documentation, community, and maintenance.

@@ -1,0 +1,43 @@
+name: OSS Health Check
+description: Check whether a repository is ready for open-source contributors.
+
+branding:
+  icon: check-circle
+  color: green
+
+inputs:
+  path:
+    description: Repository path to scan.
+    required: false
+    default: "."
+  fail-under:
+    description: Minimum score percentage required for success.
+    required: false
+    default: "0"
+  output:
+    description: Output format. Use "text" or "json".
+    required: false
+    default: "text"
+
+runs:
+  using: composite
+  steps:
+    - name: Run OSS Health Check
+      shell: bash
+      env:
+        OSS_HEALTH_CHECK_PATH: ${{ inputs.path }}
+        OSS_HEALTH_CHECK_FAIL_UNDER: ${{ inputs.fail-under }}
+        OSS_HEALTH_CHECK_OUTPUT: ${{ inputs.output }}
+      run: |
+        set -euo pipefail
+
+        args=("$OSS_HEALTH_CHECK_PATH" "--fail-under" "$OSS_HEALTH_CHECK_FAIL_UNDER")
+
+        if [ "$OSS_HEALTH_CHECK_OUTPUT" = "json" ]; then
+          args+=("--json")
+        elif [ "$OSS_HEALTH_CHECK_OUTPUT" != "text" ]; then
+          echo 'output must be "text" or "json"' >&2
+          exit 2
+        fi
+
+        PYTHONPATH="${GITHUB_ACTION_PATH}${PYTHONPATH:+:$PYTHONPATH}" python -m oss_health_check "${args[@]}"
