@@ -22,6 +22,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Exit with status 1 when any check is missing.",
     )
+    parser.add_argument(
+        "--fail-under",
+        type=_score_threshold,
+        metavar="PERCENT",
+        help="Exit with status 1 when the score is below this percent.",
+    )
     return parser
 
 
@@ -40,5 +46,17 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.strict and report.missing_count:
         return 1
+    if args.fail_under is not None and report.score_percent < args.fail_under:
+        return 1
     return 0
 
+
+def _score_threshold(value: str) -> int:
+    try:
+        threshold = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer from 0 to 100") from exc
+
+    if threshold < 0 or threshold > 100:
+        raise argparse.ArgumentTypeError("must be an integer from 0 to 100")
+    return threshold

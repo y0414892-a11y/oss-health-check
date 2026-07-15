@@ -39,6 +39,12 @@ Use strict mode when you want missing checks to fail the command:
 python -m oss_health_check . --strict
 ```
 
+Set a minimum score for automation:
+
+```powershell
+python -m oss_health_check . --fail-under 80
+```
+
 ## Example Output
 
 ```text
