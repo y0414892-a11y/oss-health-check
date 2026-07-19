@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Nothing yet.
+- Add grouped score output for documentation, community, and automation checks.
 
 ## 0.2.1
 

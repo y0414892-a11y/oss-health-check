@@ -96,6 +96,12 @@ jobs:
 OSS Health Check: .
 Score: 11/13 (85%)
 
+Categories:
+- Documentation: 5/6 (83%)
+- Community: 4/5 (80%)
+- Automation: 2/2 (100%)
+
+Checks:
 [ok] README
      Found a README file.
 [missing] README installation section

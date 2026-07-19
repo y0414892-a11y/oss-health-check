@@ -41,7 +41,10 @@ class CliTests(unittest.TestCase):
         self.assertEqual(report["passed_count"], 0)
         self.assertEqual(report["missing_count"], 13)
         self.assertEqual(report["score_percent"], 0)
+        self.assertEqual(report["categories"][0]["name"], "Documentation")
+        self.assertEqual(report["categories"][0]["total_count"], 6)
         self.assertEqual(report["results"][0]["name"], "README")
+        self.assertEqual(report["results"][0]["category"], "Documentation")
 
 
 if __name__ == "__main__":

@@ -66,9 +66,19 @@ def _format_json_report(report: ScanReport) -> str:
         "passed_count": report.passed_count,
         "missing_count": report.missing_count,
         "score_percent": report.score_percent,
+        "categories": [
+            {
+                "name": category.name,
+                "passed_count": category.passed_count,
+                "total_count": category.total_count,
+                "score_percent": category.score_percent,
+            }
+            for category in report.category_scores
+        ],
         "results": [
             {
                 "name": result.name,
+                "category": result.category,
                 "passed": result.passed,
                 "detail": result.detail,
             }

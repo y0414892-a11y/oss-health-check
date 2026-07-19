@@ -12,6 +12,10 @@ class ScanProjectTests(unittest.TestCase):
 
         self.assertEqual(report.passed_count, 0)
         self.assertEqual(report.missing_count, 13)
+        self.assertEqual(
+            [(category.name, category.passed_count, category.total_count) for category in report.category_scores],
+            [("Documentation", 0, 6), ("Community", 0, 5), ("Automation", 0, 2)],
+        )
 
     def test_repository_with_core_files_passes_expected_checks(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -43,6 +47,11 @@ class ScanProjectTests(unittest.TestCase):
         output = format_report(report)
 
         self.assertIn("Score: 3/13", output)
+        self.assertIn("Categories:", output)
+        self.assertIn("- Documentation: 3/6 (50%)", output)
+        self.assertIn("- Community: 0/5 (0%)", output)
+        self.assertIn("- Automation: 0/2 (0%)", output)
+        self.assertIn("Checks:", output)
         self.assertIn("[ok] README", output)
         self.assertIn("[ok] README example section", output)
         self.assertIn("[ok] README image alt text", output)
@@ -59,6 +68,7 @@ class ScanProjectTests(unittest.TestCase):
 
         result = next(result for result in report.results if result.name == "README image alt text")
         self.assertFalse(result.passed)
+        self.assertEqual(result.category, "Documentation")
 
 
 if __name__ == "__main__":
