@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: y0414892-a11y/oss-health-check@v0.1.0
+      - uses: y0414892-a11y/oss-health-check@v0.2.1
         with:
           fail-under: "80"
 ```
