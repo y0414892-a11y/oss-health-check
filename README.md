@@ -13,6 +13,7 @@ small enough to understand, but practical enough to improve over time.
 - README installation section
 - README usage section
 - README example section
+- README image alt text
 - License
 - Contributing guide
 - Tests
@@ -93,7 +94,7 @@ jobs:
 
 ```text
 OSS Health Check: .
-Score: 10/12 (83%)
+Score: 11/13 (85%)
 
 [ok] README
      Found a README file.

@@ -11,7 +11,7 @@ class ScanProjectTests(unittest.TestCase):
             report = scan_project(Path(tmp))
 
         self.assertEqual(report.passed_count, 0)
-        self.assertEqual(report.missing_count, 12)
+        self.assertEqual(report.missing_count, 13)
 
     def test_repository_with_core_files_passes_expected_checks(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -29,6 +29,7 @@ class ScanProjectTests(unittest.TestCase):
         self.assertIn("README installation section", passed_names)
         self.assertIn("README usage section", passed_names)
         self.assertIn("README example section", passed_names)
+        self.assertIn("README image alt text", passed_names)
         self.assertIn("License", passed_names)
         self.assertIn("Contributing guide", passed_names)
         self.assertIn("Tests", passed_names)
@@ -41,12 +42,23 @@ class ScanProjectTests(unittest.TestCase):
 
         output = format_report(report)
 
-        self.assertIn("Score: 2/12", output)
+        self.assertIn("Score: 3/13", output)
         self.assertIn("[ok] README", output)
         self.assertIn("[ok] README example section", output)
+        self.assertIn("[ok] README image alt text", output)
         self.assertIn("[missing] README installation section", output)
         self.assertIn("[missing] README usage section", output)
         self.assertIn("[missing] License", output)
+
+    def test_readme_image_without_alt_text_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("# Example\n\n![  ](screenshot.png)\n", encoding="utf-8")
+
+            report = scan_project(root)
+
+        result = next(result for result in report.results if result.name == "README image alt text")
+        self.assertFalse(result.passed)
 
 
 if __name__ == "__main__":

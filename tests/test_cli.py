@@ -39,7 +39,7 @@ class CliTests(unittest.TestCase):
         report = json.loads(output.getvalue())
         self.assertEqual(exit_code, 0)
         self.assertEqual(report["passed_count"], 0)
-        self.assertEqual(report["missing_count"], 12)
+        self.assertEqual(report["missing_count"], 13)
         self.assertEqual(report["score_percent"], 0)
         self.assertEqual(report["results"][0]["name"], "README")
 

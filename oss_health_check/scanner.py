@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,6 +39,7 @@ def scan_project(root: Path) -> ScanReport:
         _check_readme_section(root, "README installation section", ("installation", "install", "setup"), "Found README installation instructions.", "Add an Installation or Setup section to the README."),
         _check_readme_section(root, "README usage section", ("usage", "quick start", "getting started"), "Found README usage instructions.", "Add a Usage or Quick Start section to the README."),
         _check_readme_section(root, "README example section", ("example", "examples", "example output"), "Found a README example section.", "Add an Example section to the README."),
+        _check_readme_image_alt_text(root),
         _check_any_file(root, "License", ("LICENSE", "LICENSE.md", "COPYING"), "Found a license file.", "Add a license so people know how they may use the project."),
         _check_any_file(root, "Contributing guide", ("CONTRIBUTING.md", ".github/CONTRIBUTING.md"), "Found a contributing guide.", "Add CONTRIBUTING.md with local setup and contribution workflow."),
         _check_tests(root),
@@ -106,6 +108,25 @@ def _read_markdown_headings(path: Path) -> set[str]:
         if line.startswith("#"):
             headings.add(line.lstrip("#").strip().lower())
     return headings
+
+
+def _check_readme_image_alt_text(root: Path) -> CheckResult:
+    readme = _find_readme(root)
+    if readme is None:
+        return CheckResult(
+            name="README image alt text",
+            passed=False,
+            detail="Add alt text to README images so screen reader users can understand them.",
+        )
+
+    content = readme.read_text(encoding="utf-8")
+    missing_alt = any(match.group(1).strip() == "" for match in re.finditer(r"!\[([^\]]*)\]\(", content))
+    detail = (
+        "README images have alt text."
+        if not missing_alt
+        else "Add alt text to README images so screen reader users can understand them."
+    )
+    return CheckResult(name="README image alt text", passed=not missing_alt, detail=detail)
 
 
 def _check_tests(root: Path) -> CheckResult:
