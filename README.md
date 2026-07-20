@@ -101,6 +101,10 @@ Categories:
 - Community: 4/5 (80%)
 - Automation: 2/2 (100%)
 
+Next steps:
+- Documentation: Add an Installation or Setup section to the README.
+- Community: Add SECURITY.md with vulnerability reporting instructions.
+
 Checks:
 [ok] README
      Found a README file.

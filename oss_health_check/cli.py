@@ -75,6 +75,14 @@ def _format_json_report(report: ScanReport) -> str:
             }
             for category in report.category_scores
         ],
+        "next_steps": [
+            {
+                "name": result.name,
+                "category": result.category,
+                "detail": result.detail,
+            }
+            for result in report.next_steps
+        ],
         "results": [
             {
                 "name": result.name,

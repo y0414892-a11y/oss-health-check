@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+MAX_NEXT_STEPS = 3
+
+
 @dataclass(frozen=True)
 class CheckResult:
     name: str
@@ -57,6 +60,10 @@ class ScanReport:
             for name, counts in scores.items()
         )
 
+    @property
+    def next_steps(self) -> tuple[CheckResult, ...]:
+        return tuple(result for result in self.results if not result.passed)[:MAX_NEXT_STEPS]
+
 
 def scan_project(root: Path) -> ScanReport:
     root = root.resolve()
@@ -88,6 +95,17 @@ def format_report(report: ScanReport) -> str:
 
     for category in report.category_scores:
         lines.append(f"- {category.name}: {category.passed_count}/{category.total_count} ({category.score_percent}%)")
+
+    lines.extend([
+        "",
+        "Next steps:",
+    ])
+
+    if report.next_steps:
+        for result in report.next_steps:
+            lines.append(f"- {result.category}: {result.detail}")
+    else:
+        lines.append("- No missing checks. This repository looks ready for contributors.")
 
     lines.extend([
         "",
