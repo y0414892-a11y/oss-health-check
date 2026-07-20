@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Nothing yet.
+
+## 0.4.0
+
 - Add a next-step summary with the first missing checks to fix.
 
 ## 0.3.0
