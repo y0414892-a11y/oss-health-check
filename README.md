@@ -67,6 +67,27 @@ Output JSON for scripts and automation:
 python -m oss_health_check . --json
 ```
 
+## Configuration
+
+Create `oss-health-check.json` in the repository you want to scan:
+
+```json
+{
+  "fail_under": 80,
+  "ignore": ["Changelog"]
+}
+```
+
+`fail_under` sets the minimum passing score. `ignore` removes selected checks
+from the report and score. Command-line `--fail-under` overrides the config
+file value.
+
+Use a custom config path:
+
+```powershell
+python -m oss_health_check . --config C:\path\to\oss-health-check.json
+```
+
 ## GitHub Action
 
 Use this repository as a GitHub Action in another project:
@@ -88,6 +109,15 @@ jobs:
       - uses: y0414892-a11y/oss-health-check@v0.4.0
         with:
           fail-under: "80"
+```
+
+The Action also reads `oss-health-check.json` from the checked-out repository.
+Use `config` when the file lives somewhere else:
+
+```yaml
+      - uses: y0414892-a11y/oss-health-check@v0.4.0
+        with:
+          config: tools/oss-health-check.json
 ```
 
 ## Example Output
@@ -126,7 +156,7 @@ repositories.
 - Add GitHub Action examples for common project types.
 - Add GitHub API checks for repository metadata.
 - Add language-specific checks for Python, JavaScript, and Rust projects.
-- Add scoring categories for documentation, community, and maintenance.
+- Add YAML configuration support.
 - Publish the package to PyPI.
 
 ## Learning Path

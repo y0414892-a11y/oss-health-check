@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Nothing yet.
+- Add JSON config file support for `fail_under` and ignored checks.
 
 ## 0.4.0
 

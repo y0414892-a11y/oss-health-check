@@ -11,9 +11,13 @@ inputs:
     required: false
     default: "."
   fail-under:
-    description: Minimum score percentage required for success.
+    description: Minimum score percentage required for success. Overrides fail_under in the config file.
     required: false
-    default: "0"
+    default: ""
+  config:
+    description: Optional path to a JSON config file.
+    required: false
+    default: ""
   output:
     description: Output format. Use "text" or "json".
     required: false
@@ -27,11 +31,20 @@ runs:
       env:
         OSS_HEALTH_CHECK_PATH: ${{ inputs.path }}
         OSS_HEALTH_CHECK_FAIL_UNDER: ${{ inputs.fail-under }}
+        OSS_HEALTH_CHECK_CONFIG: ${{ inputs.config }}
         OSS_HEALTH_CHECK_OUTPUT: ${{ inputs.output }}
       run: |
         set -euo pipefail
 
-        args=("$OSS_HEALTH_CHECK_PATH" "--fail-under" "$OSS_HEALTH_CHECK_FAIL_UNDER")
+        args=("$OSS_HEALTH_CHECK_PATH")
+
+        if [ -n "$OSS_HEALTH_CHECK_FAIL_UNDER" ]; then
+          args+=("--fail-under" "$OSS_HEALTH_CHECK_FAIL_UNDER")
+        fi
+
+        if [ -n "$OSS_HEALTH_CHECK_CONFIG" ]; then
+          args+=("--config" "$OSS_HEALTH_CHECK_CONFIG")
+        fi
 
         if [ "$OSS_HEALTH_CHECK_OUTPUT" = "json" ]; then
           args+=("--json")

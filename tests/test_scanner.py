@@ -21,6 +21,22 @@ class ScanProjectTests(unittest.TestCase):
             ["README", "README installation section", "README usage section"],
         )
 
+    def test_ignored_checks_are_removed_from_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report = scan_project(Path(tmp), ignored_checks=("README", "License"))
+
+        result_names = [result.name for result in report.results]
+        self.assertEqual(report.ignored_checks, ("README", "License"))
+        self.assertNotIn("README", result_names)
+        self.assertNotIn("License", result_names)
+        self.assertEqual(report.missing_count, 11)
+        self.assertEqual(report.next_steps[0].name, "README installation section")
+
+    def test_unknown_ignored_check_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ValueError):
+                scan_project(Path(tmp), ignored_checks=("Typo",))
+
     def test_repository_with_core_files_passes_expected_checks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

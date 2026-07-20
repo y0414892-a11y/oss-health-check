@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,6 +34,7 @@ class CategoryScore:
 class ScanReport:
     root: Path
     results: tuple[CheckResult, ...]
+    ignored_checks: tuple[str, ...] = ()
 
     @property
     def passed_count(self) -> int:
@@ -65,9 +67,9 @@ class ScanReport:
         return tuple(result for result in self.results if not result.passed)[:MAX_NEXT_STEPS]
 
 
-def scan_project(root: Path) -> ScanReport:
+def scan_project(root: Path, ignored_checks: Iterable[str] = ()) -> ScanReport:
     root = root.resolve()
-    results = (
+    all_results = (
         _check_any_file(root, "Documentation", "README", ("README.md", "README.rst", "README.txt"), "Found a README file.", "Add a README with purpose, setup, and usage instructions."),
         _check_readme_section(root, "README installation section", ("installation", "install", "setup"), "Found README installation instructions.", "Add an Installation or Setup section to the README."),
         _check_readme_section(root, "README usage section", ("usage", "quick start", "getting started"), "Found README usage instructions.", "Add a Usage or Quick Start section to the README."),
@@ -82,7 +84,14 @@ def scan_project(root: Path) -> ScanReport:
         _check_any_file(root, "Community", "Security policy", ("SECURITY.md", ".github/SECURITY.md"), "Found a security policy.", "Add SECURITY.md with vulnerability reporting instructions."),
         _check_any_file(root, "Documentation", "Changelog", ("CHANGELOG.md", "HISTORY.md", "NEWS.md"), "Found a changelog.", "Add CHANGELOG.md to document user-visible changes."),
     )
-    return ScanReport(root=root, results=results)
+    ignored_check_names = tuple(dict.fromkeys(ignored_checks))
+    known_check_names = {result.name for result in all_results}
+    unknown_check_names = sorted(set(ignored_check_names) - known_check_names)
+    if unknown_check_names:
+        raise ValueError(f"unknown ignored check: {', '.join(unknown_check_names)}")
+
+    results = tuple(result for result in all_results if result.name not in ignored_check_names)
+    return ScanReport(root=root, results=results, ignored_checks=ignored_check_names)
 
 
 def format_report(report: ScanReport) -> str:
@@ -90,8 +99,15 @@ def format_report(report: ScanReport) -> str:
         f"OSS Health Check: {report.root}",
         f"Score: {report.passed_count}/{len(report.results)} ({report.score_percent}%)",
         "",
-        "Categories:",
     ]
+
+    if report.ignored_checks:
+        lines.append("Ignored checks:")
+        for check_name in report.ignored_checks:
+            lines.append(f"- {check_name}")
+        lines.append("")
+
+    lines.append("Categories:")
 
     for category in report.category_scores:
         lines.append(f"- {category.name}: {category.passed_count}/{category.total_count} ({category.score_percent}%)")

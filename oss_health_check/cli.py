@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .config import Config, find_config, load_config
 from .scanner import ScanReport, format_report, scan_project
 
 
@@ -34,6 +35,10 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Output the report as JSON.",
     )
+    parser.add_argument(
+        "--config",
+        help="Path to a JSON config file. Defaults to oss-health-check.json in the scanned repository.",
+    )
     return parser
 
 
@@ -47,17 +52,36 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         parser.error(f"path is not a directory: {root}")
 
-    report = scan_project(root)
+    config = _load_cli_config(parser, root, args.config)
+    try:
+        report = scan_project(root, ignored_checks=config.ignored_checks)
+    except ValueError as exc:
+        parser.error(str(exc))
+
     if args.json:
         print(_format_json_report(report))
     else:
         print(format_report(report))
 
+    fail_under = args.fail_under if args.fail_under is not None else config.fail_under
     if args.strict and report.missing_count:
         return 1
-    if args.fail_under is not None and report.score_percent < args.fail_under:
+    if fail_under is not None and report.score_percent < fail_under:
         return 1
     return 0
+
+
+def _load_cli_config(parser: argparse.ArgumentParser, root: Path, config_path: str | None) -> Config:
+    path = Path(config_path) if config_path else find_config(root)
+    if path is None:
+        return Config()
+
+    try:
+        return load_config(path)
+    except OSError as exc:
+        parser.error(f"could not read config {path}: {exc}")
+    except ValueError as exc:
+        parser.error(f"invalid config {path}: {exc}")
 
 
 def _format_json_report(report: ScanReport) -> str:
@@ -66,6 +90,7 @@ def _format_json_report(report: ScanReport) -> str:
         "passed_count": report.passed_count,
         "missing_count": report.missing_count,
         "score_percent": report.score_percent,
+        "ignored_checks": list(report.ignored_checks),
         "categories": [
             {
                 "name": category.name,
