@@ -106,7 +106,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: y0414892-a11y/oss-health-check@v0.4.0
+      - uses: y0414892-a11y/oss-health-check@v0.5.0
         with:
           fail-under: "80"
 ```
@@ -115,7 +115,7 @@ The Action also reads `oss-health-check.json` from the checked-out repository.
 Use `config` when the file lives somewhere else:
 
 ```yaml
-      - uses: y0414892-a11y/oss-health-check@v0.4.0
+      - uses: y0414892-a11y/oss-health-check@v0.5.0
         with:
           config: tools/oss-health-check.json
 ```
